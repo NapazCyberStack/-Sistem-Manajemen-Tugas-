@@ -1,44 +1,63 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/db');
+const User = require('./User');
 
-const TaskSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: [true, 'Judul tugas wajib diisi'],
-      trim: true,
-      maxlength: [100, 'Judul maksimal 100 karakter']
-    },
-    description: {
-      type: String,
-      trim: true,
-      maxlength: [500, 'Deskripsi maksimal 500 karakter']
-    },
-    status: {
-      type: String,
-      enum: ['Pending', 'In Progress', 'Completed'],
-      default: 'Pending'
-    },
-    priority: {
-      type: String,
-      enum: ['Low', 'Medium', 'High'],
-      default: 'Medium'
-    },
-    dueDate: {
-      type: Date,
-      required: [true, 'Tenggat waktu wajib diisi']
-    },
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
+const Task = sequelize.define('Task', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+  },
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: 'Judul tugas wajib diisi'
+      },
+      len: {
+        args: [1, 100],
+        msg: 'Judul maksimal 100 karakter'
+      }
     }
   },
-  { timestamps: true }
-);
+  description: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+    validate: {
+      len: {
+        args: [0, 500],
+        msg: 'Deskripsi maksimal 500 karakter'
+      }
+    }
+  },
+  status: {
+    type: DataTypes.ENUM('Pending', 'In Progress', 'Completed'),
+    defaultValue: 'Pending'
+  },
+  priority: {
+    type: DataTypes.ENUM('Low', 'Medium', 'High'),
+    defaultValue: 'Medium'
+  },
+  dueDate: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    validate: {
+      notNull: {
+        msg: 'Tenggat waktu wajib diisi'
+      }
+    }
+  }
+}, {
+  timestamps: true,
+  indexes: [
+    { fields: ['userId', 'status'] },
+    { fields: ['userId', 'priority'] }
+  ]
+});
 
-// Index untuk query pencarian & filter
-TaskSchema.index({ userId: 1, status: 1 });
-TaskSchema.index({ userId: 1, priority: 1 });
-TaskSchema.index({ title: 'text', description: 'text' });
+// Relasi
+User.hasMany(Task, { foreignKey: 'userId', as: 'tasks' });
+Task.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-module.exports = mongoose.model('Task', TaskSchema);
+module.exports = Task;
