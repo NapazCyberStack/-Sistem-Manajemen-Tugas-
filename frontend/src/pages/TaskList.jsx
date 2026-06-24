@@ -29,6 +29,7 @@ const TaskList = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
+  const [viewMode, setViewMode] = useState('card'); // 'card' | 'table'
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -145,13 +146,22 @@ const TaskList = () => {
           <h2 className="fw-bold text-dark mb-1">Daftar Tugas</h2>
           <p className="text-secondary m-0">Kelola dan awasi progres pekerjaan Anda</p>
         </div>
-        <button 
-          onClick={handleOpenCreateModal} 
-          className="btn btn-primary bg-gradient-primary border-0 rounded-3 px-4 py-2.5 d-flex align-items-center gap-2 fw-semibold shadow-sm"
-        >
-          <i className="bi bi-plus-circle-fill"></i>
-          <span>Tambah Tugas Baru</span>
-        </button>
+        <div className="d-flex gap-2">
+          <button
+            onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
+            className="btn btn-outline-secondary rounded-3"
+            title={viewMode === 'card' ? 'Tampilan Tabel' : 'Tampilan Kartu'}
+          >
+            <i className={`bi bi-${viewMode === 'card' ? 'table' : 'grid-3x3-gap'}`}></i>
+          </button>
+          <button 
+            onClick={handleOpenCreateModal} 
+            className="btn btn-primary bg-gradient-primary border-0 rounded-3 px-4 py-2.5 d-flex align-items-center gap-2 fw-semibold shadow-sm"
+          >
+            <i className="bi bi-plus-circle-fill"></i>
+            <span>Tambah Tugas Baru</span>
+          </button>
+        </div>
       </div>
 
       {/* Search and Filters Header */}
@@ -254,6 +264,53 @@ const TaskList = () => {
               Buat Tugas Sekarang
             </button>
           </div>
+        </div>
+      ) : viewMode === 'table' ? (
+        <div className="table-responsive">
+          <table className="table table-hover table-bordered align-middle bg-white rounded-3 overflow-hidden">
+            <thead className="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Judul</th>
+                <th>Status</th>
+                <th>Prioritas</th>
+                <th>Tenggat</th>
+                <th className="text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tasks.map((task, index) => (
+                <tr key={task._id}>
+                  <td className="text-secondary">{index + 1}</td>
+                  <td className="fw-semibold">{task.title}</td>
+                  <td>
+                    <span className={`badge ${
+                      task.status === 'Completed' ? 'bg-success' :
+                      task.status === 'In Progress' ? 'bg-primary' : 'bg-secondary'
+                    }`}>{task.status}</span>
+                  </td>
+                  <td>
+                    <span className={`badge ${
+                      task.priority === 'High' ? 'bg-danger' :
+                      task.priority === 'Medium' ? 'bg-warning text-dark' : 'bg-info text-dark'
+                    }`}>{task.priority}</span>
+                  </td>
+                  <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString('id-ID') : '-'}</td>
+                  <td className="text-center">
+                    <button onClick={() => handleOpenDetailModal(task)} className="btn btn-sm btn-outline-info me-1" title="Detail">
+                      <i className="bi bi-eye"></i>
+                    </button>
+                    <button onClick={() => handleOpenEditModal(task)} className="btn btn-sm btn-outline-primary me-1" title="Edit">
+                      <i className="bi bi-pencil"></i>
+                    </button>
+                    <button onClick={() => handleDeleteTask(task._id)} className="btn btn-sm btn-outline-danger" title="Hapus">
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
         <div className="row g-4">
