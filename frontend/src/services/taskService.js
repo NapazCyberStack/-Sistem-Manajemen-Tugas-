@@ -1,68 +1,46 @@
 import ApiService from './api';
 
+const BASE = '/api/tasks';
+
 class TaskService extends ApiService {
   constructor() {
     super();
   }
 
-  // GET /data with search and filters
+  // GET /data — ambil semua tugas dengan filter
   async getTasks(filters = {}) {
-    try {
-      const response = await this.get('/data', filters);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await this.get(`${BASE}/data`, filters);
+    return response.data;
   }
 
-  // GET /data/:id
+  // GET /data/:id — detail tugas
   async getTaskById(id) {
-    try {
-      const response = await this.get(`/data/${id}`);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await this.get(`${BASE}/data/${id}`);
+    return response.data;
   }
 
-  // POST /data
+  // POST /data — buat tugas baru
   async createTask(taskData) {
-    try {
-      const response = await this.post('/data', taskData);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await this.post(`${BASE}/data`, taskData);
+    return response.data;
   }
 
-  // PUT /data/:id
+  // PUT /data/:id — update tugas
   async updateTask(id, taskData) {
-    try {
-      const response = await this.put(`/data/${id}`, taskData);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await this.put(`${BASE}/data/${id}`, taskData);
+    return response.data;
   }
 
-  // DELETE /data/:id
+  // DELETE /data/:id — hapus tugas
   async deleteTask(id) {
-    try {
-      const response = await this.delete(`/data/${id}`);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await this.delete(`${BASE}/data/${id}`);
+    return response.data;
   }
 
-  // GET /stats
+  // GET /stats — statistik dashboard
   async getStats() {
-    try {
-      const response = await this.get('/stats');
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await this.get(`${BASE}/stats`);
+    return response.data;
   }
 }
 
