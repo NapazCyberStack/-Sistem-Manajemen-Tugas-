@@ -4,16 +4,16 @@ const errorHandler = (err, req, res, next) => {
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   let message = err.message || 'Terjadi kesalahan pada server';
 
-  // Mongoose validation error
-  if (err.name === 'ValidationError') {
+  // Sequelize validation error
+  if (err.name === 'SequelizeValidationError') {
     statusCode = 400;
-    message = Object.values(err.errors).map(e => e.message).join(', ');
+    message = err.errors.map(e => e.message).join(', ');
   }
 
-  // Mongoose duplicate key error
-  if (err.code === 11000) {
+  // Sequelize unique constraint error (e.g. duplicate email/username)
+  if (err.name === 'SequelizeUniqueConstraintError') {
     statusCode = 400;
-    const field = Object.keys(err.keyValue)[0];
+    const field = err.errors[0].path;
     message = `${field} sudah digunakan`;
   }
 
@@ -25,12 +25,6 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === 'TokenExpiredError') {
     statusCode = 401;
     message = 'Token sudah kadaluarsa, silakan login ulang';
-  }
-
-  // Mongoose invalid ObjectId
-  if (err.name === 'CastError') {
-    statusCode = 400;
-    message = 'ID tidak valid';
   }
 
   res.status(statusCode).json({
