@@ -13,26 +13,35 @@ import TaskDetail from './pages/TaskDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
+// Guards
+import ProtectedRoute from './components/ProtectedRoute';
+
 function App() {
   return (
     <Router>
       <AuthProvider>
         <Routes>
           
-          {/* Guest Routes (Redirects to / if already logged in) */}
+          {/* Guest Routes */}
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Route>
 
-          {/* Authenticated Routes (Redirects to /login if not logged in) */}
+          {/* Protected Routes — harus login */}
           <Route element={<MainLayout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/tasks" element={<TaskList />} />
-            <Route path="/tasks/:id" element={<TaskDetail />} />
+            <Route path="/" element={
+              <ProtectedRoute><Dashboard /></ProtectedRoute>
+            } />
+            <Route path="/tasks" element={
+              <ProtectedRoute><TaskList /></ProtectedRoute>
+            } />
+            <Route path="/tasks/:id" element={
+              <ProtectedRoute><TaskDetail /></ProtectedRoute>
+            } />
           </Route>
 
-          {/* Catch-all redirect to Dashboard */}
+          {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />
 
         </Routes>
