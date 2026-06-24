@@ -24,6 +24,15 @@ class TaskRepository {
     }
   }
 
+  async searchTasks(userId, keyword, status, priority) {
+    const query = { userId };
+    if (keyword) query.title = { $regex: keyword, $options: 'i' };
+    if (status) query.status = status;
+    if (priority) query.priority = priority;
+    return await Task.find(query).sort({ createdAt: -1 });
+  }
+
+
   async findAll(filter = {}) {
     const { userId, search, priority, status } = filter;
 
@@ -57,7 +66,7 @@ class TaskRepository {
       // Filter by Search Query
       if (search) {
         const searchLower = search.toLowerCase();
-        tasks = tasks.filter(t => 
+        tasks = tasks.filter(t =>
           (t.title && t.title.toLowerCase().includes(searchLower)) ||
           (t.description && t.description.toLowerCase().includes(searchLower))
         );
