@@ -9,44 +9,60 @@ const { errorHandler, notFoundHandler } = require('./src/middlewares/errorMiddle
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS with support for credentials/Authorization headers
+// CORS
 app.use(cors({
-  origin: '*', // Allow all origins for simplicity in development, can customize as needed
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Body parser
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-// Request logger for debugging
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
+// Request logger (development only)
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log(`[${new Date().toLocaleTimeString('id-ID')}] ${req.method} ${req.url}`);
+    next();
+  });
+}
 
-// Root check endpoint
-app.get('/', (req, res) => {
+// Health check endpoint
+app.get('/health', (req, res) => {
   res.json({
     status: 'online',
-    message: 'Task Management System REST API is running',
-    databaseFallback: db.isFallback
+    message: 'Task Management System API berjalan',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
-// Register routes
-app.use('/', authRoutes);
-app.use('/', taskRoutes);
+// API info
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Task Management System API',
+    version: '1.0.0',
+    endpoints: {
+      auth: ['/api/auth/register', '/api/auth/login', '/api/auth/logout', '/api/auth/me'],
+      tasks: ['/api/tasks/data', '/api/tasks/data/:id', '/api/tasks/stats']
+    }
+  });
+});
 
-// Fallback handlers
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
+
+// Error handlers
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Start database then start listening
+// Start server
 const startServer = async () => {
   await db.connect();
   app.listen(PORT, () => {
-    console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    console.log(`✅ Server berjalan di port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
   });
 };
 

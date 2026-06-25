@@ -1,55 +1,32 @@
 const User = require('../models/User');
-const db = require('../config/db');
 
 class UserRepository {
-  constructor() {
-    this.collectionName = 'users';
-  }
-
-  async create(userData) {
-    if (!db.isFallback) {
-      const user = new User(userData);
-      return await user.save();
-    } else {
-      const users = db.readData(this.collectionName);
-      // Generate a mock hex ID similar to Mongo's ObjectId
-      const mockId = Math.random().toString(16).substring(2, 14) + Math.random().toString(16).substring(2, 14);
-      const newUser = {
-        _id: mockId,
-        ...userData,
-        createdAt: new Date().toISOString()
-      };
-      users.push(newUser);
-      db.writeData(this.collectionName, users);
-      return newUser;
-    }
+  // Helper to map Sequelize id to Mongoose _id for backward compatibility
+  _mapUser(user) {
+    if (!user) return null;
+    const userData = user.toJSON();
+    userData._id = userData.id; // Compatibility mapping
+    return userData;
   }
 
   async findByEmail(email) {
-    if (!db.isFallback) {
-      return await User.findOne({ email: email.toLowerCase() });
-    } else {
-      const users = db.readData(this.collectionName);
-      return users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
-    }
+    const user = await User.findOne({ where: { email } });
+    return this._mapUser(user);
   }
 
   async findByUsername(username) {
-    if (!db.isFallback) {
-      return await User.findOne({ username });
-    } else {
-      const users = db.readData(this.collectionName);
-      return users.find(u => u.username === username) || null;
-    }
+    const user = await User.findOne({ where: { username } });
+    return this._mapUser(user);
   }
 
   async findById(id) {
-    if (!db.isFallback) {
-      return await User.findById(id);
-    } else {
-      const users = db.readData(this.collectionName);
-      return users.find(u => u._id.toString() === id.toString()) || null;
-    }
+    const user = await User.findByPk(id);
+    return this._mapUser(user);
+  }
+
+  async create(userData) {
+    const user = await User.create(userData);
+    return this._mapUser(user);
   }
 }
 

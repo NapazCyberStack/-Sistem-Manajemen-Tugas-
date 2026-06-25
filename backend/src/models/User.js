@@ -1,39 +1,57 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/db');
 
-const UserSchema = new mongoose.Schema(
-  {
-    username: {
-      type: String,
-      required: [true, 'Username wajib diisi'],
-      unique: true,
-      trim: true,
-      minlength: [3, 'Username minimal 3 karakter'],
-      maxlength: [30, 'Username maksimal 30 karakter']
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+  },
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: {
+      msg: 'Username sudah digunakan'
     },
-    email: {
-      type: String,
-      required: [true, 'Email wajib diisi'],
-      unique: true,
-      trim: true,
-      lowercase: true,
-      match: [/^\S+@\S+\.\S+$/, 'Format email tidak valid']
-    },
-    password: {
-      type: String,
-      required: [true, 'Password wajib diisi'],
-      minlength: [6, 'Password minimal 6 karakter']
-    },
-    role: {
-      type: String,
-      enum: ['Admin', 'User'],
-      default: 'User'
+    validate: {
+      len: {
+        args: [3, 30],
+        msg: 'Username harus antara 3 dan 30 karakter'
+      }
     }
   },
-  { timestamps: true }
-);
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: {
+      msg: 'Email sudah terdaftar'
+    },
+    validate: {
+      isEmail: {
+        msg: 'Format email tidak valid'
+      }
+    }
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      len: {
+        args: [6, 100],
+        msg: 'Password minimal 6 karakter'
+      }
+    }
+  },
+  role: {
+    type: DataTypes.ENUM('Admin', 'User'),
+    defaultValue: 'User'
+  }
+}, {
+  timestamps: true,
+  indexes: [
+    { fields: ['email'] },
+    { fields: ['username'] }
+  ]
+});
 
-// Index untuk performa query
-UserSchema.index({ email: 1 });
-UserSchema.index({ username: 1 });
-
-module.exports = mongoose.model('User', UserSchema);
+module.exports = User;
