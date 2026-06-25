@@ -35,8 +35,8 @@ app.get('/', (req, res) => {
 });
 
 // Register routes
-app.use('/', authRoutes);
-app.use('/', taskRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // Fallback handlers
 app.use(notFoundHandler);
