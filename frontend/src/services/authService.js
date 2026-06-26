@@ -8,7 +8,7 @@ class AuthService extends ApiService {
   // POST /register
   async register(username, email, password, role = 'User') {
     try {
-      const response = await this.post('/register', { username, email, password, role });
+      const response = await this.post('/api/auth/register', { username, email, password, role });
       const { token, ...user } = response.data;
       
       // Store in localStorage
@@ -24,7 +24,7 @@ class AuthService extends ApiService {
   // POST /login
   async login(email, password) {
     try {
-      const response = await this.post('/login', { email, password });
+      const response = await this.post('/api/auth/login', { email, password });
       const { token, ...user } = response.data;
       
       // Store in localStorage
