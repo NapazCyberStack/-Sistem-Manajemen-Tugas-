@@ -10,6 +10,8 @@ const TaskForm = ({ task, onSubmit, onCancel, loading }) => {
   });
 
   const [errors, setErrors] = useState({});
+  const [proofImageFile, setProofImageFile] = useState(null);
+  const [proofImagePreview, setProofImagePreview] = useState('');
 
   // Populate form if editing an existing task
   useEffect(() => {
@@ -27,6 +29,8 @@ const TaskForm = ({ task, onSubmit, onCancel, loading }) => {
         priority: task.priority || 'Medium',
         dueDate: formattedDate
       });
+      setProofImageFile(null);
+      setProofImagePreview(task.proofImage || '');
     } else {
       // Reset form
       setFormData({
@@ -36,6 +40,8 @@ const TaskForm = ({ task, onSubmit, onCancel, loading }) => {
         priority: 'Medium',
         dueDate: ''
       });
+      setProofImageFile(null);
+      setProofImagePreview('');
     }
     setErrors({});
   }, [task]);
@@ -80,11 +86,31 @@ const TaskForm = ({ task, onSubmit, onCancel, loading }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProofImageFile(file);
+      setProofImagePreview(URL.createObjectURL(file));
+    } else {
+      setProofImageFile(null);
+      setProofImagePreview(task?.proofImage || '');
+    }
+  };
+
   // Submit form
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(formData);
+      const submissionData = new FormData();
+      submissionData.append('title', formData.title);
+      submissionData.append('description', formData.description || '');
+      submissionData.append('status', formData.status);
+      submissionData.append('priority', formData.priority);
+      submissionData.append('dueDate', formData.dueDate);
+      if (proofImageFile) {
+        submissionData.append('proofImage', proofImageFile);
+      }
+      onSubmit(submissionData);
     }
   };
 
@@ -121,6 +147,32 @@ const TaskForm = ({ task, onSubmit, onCancel, loading }) => {
           placeholder="Detail/deskripsi tugas..."
           disabled={loading}
         ></textarea>
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="task-proofImage" className="form-label fw-semibold text-secondary">
+          Foto Bukti Tugas
+        </label>
+        <input
+          type="file"
+          id="task-proofImage"
+          name="proofImage"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="form-control rounded-3"
+          disabled={loading}
+        />
+        {proofImagePreview && (
+          <div className="mt-3">
+            <p className="mb-2 text-secondary small">Pratinjau bukti foto saat ini:</p>
+            <img
+              src={proofImagePreview}
+              alt="Bukti tugas"
+              className="img-fluid rounded-3"
+              style={{ maxHeight: '220px', objectFit: 'cover', width: '100%' }}
+            />
+          </div>
+        )}
       </div>
 
       <div className="row g-3 mb-4">

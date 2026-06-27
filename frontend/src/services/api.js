@@ -4,10 +4,7 @@ class ApiService {
   constructor() {
     this.baseURL = 'http://localhost:5000';
     this.client = axios.create({
-      baseURL: this.baseURL,
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      baseURL: this.baseURL
     });
 
     this._initializeRequestInterceptors();

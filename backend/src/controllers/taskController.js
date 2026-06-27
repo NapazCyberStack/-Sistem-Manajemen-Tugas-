@@ -54,6 +54,7 @@ class TaskController {
   createTask = async (req, res, next) => {
     try {
       const { title, description, status, priority, dueDate } = req.body;
+      const proofImage = req.file ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}` : undefined;
 
       const taskData = {
         title,
@@ -61,7 +62,8 @@ class TaskController {
         status: status || 'Pending',
         priority: priority || 'Medium',
         dueDate,
-        userId: req.user.id // Tasks are owned by the creator
+        userId: req.user.id, // Tasks are owned by the creator
+        proofImage
       };
 
       const task = await taskRepository.create(taskData);
@@ -89,12 +91,14 @@ class TaskController {
         return res.status(403).json({ message: 'Forbidden: You do not have permission to edit this task' });
       }
 
+      const proofImage = req.file ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}` : undefined;
       const updateData = {};
       if (title !== undefined) updateData.title = title;
       if (description !== undefined) updateData.description = description;
       if (status !== undefined) updateData.status = status;
       if (priority !== undefined) updateData.priority = priority;
       if (dueDate !== undefined) updateData.dueDate = dueDate;
+      if (proofImage) updateData.proofImage = proofImage;
 
       const updatedTask = await taskRepository.update(id, updateData);
       return res.json(updatedTask);

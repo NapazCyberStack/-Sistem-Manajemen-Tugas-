@@ -134,6 +134,20 @@ const TaskDetail = () => {
             {task.description || <em className="opacity-50">Tidak ada deskripsi untuk tugas ini.</em>}
           </div>
 
+          {task.proofImage && (
+            <div className="mb-4">
+              <h5 className="fw-semibold text-secondary mb-2">Bukti Foto</h5>
+              <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
+                <img
+                  src={task.proofImage}
+                  alt="Bukti tugas"
+                  className="w-100 h-100"
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Task Info Grid */}
           <div className="row g-3 border-top pt-4 mb-4 text-secondary">
             <div className="col-12 col-sm-6">

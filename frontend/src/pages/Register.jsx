@@ -11,8 +11,7 @@ const Register = () => {
     username: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    role: 'User' // Default to User role
+    confirmPassword: ''
   });
 
   const [validationError, setValidationError] = useState('');
@@ -80,8 +79,7 @@ const Register = () => {
       await register(
         formData.username, 
         formData.email, 
-        formData.password, 
-        formData.role
+        formData.password
       );
       // Redirect to dashboard on success
       navigate('/');
@@ -143,25 +141,6 @@ const Register = () => {
             required
           />
           <label htmlFor="register-email">Alamat Email</label>
-        </div>
-
-        {/* Role selection (convenient for testing Admin/User authorization) */}
-        <div className="mb-3">
-          <label htmlFor="register-role" className="form-label text-secondary fw-semibold ps-2" style={{ fontSize: '12px' }}>
-            Pilih Peran Akun (Role)
-          </label>
-          <select
-            id="register-role"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="form-select form-select-lg rounded-3"
-            disabled={loading}
-            style={{ fontSize: '15px', height: '58px' }}
-          >
-            <option value="User">User (Akses tugas sendiri)</option>
-            <option value="Admin">Admin (Kelola semua data tugas)</option>
-          </select>
         </div>
 
         {/* Password */}

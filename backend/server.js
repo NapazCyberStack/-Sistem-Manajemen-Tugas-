@@ -1,7 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const bcrypt = require('bcryptjs');
 const db = require('./src/config/db');
+const userRepository = require('./src/repositories/userRepository');
 const authRoutes = require('./src/routes/authRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
 const { errorHandler, notFoundHandler } = require('./src/middlewares/errorMiddleware');
@@ -19,6 +22,9 @@ app.use(cors({
 // Body parser
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Static uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Request logger (development only)
 if (process.env.NODE_ENV !== 'production') {
@@ -58,9 +64,36 @@ app.use('/api/tasks', taskRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
+const ensureAdminUser = async () => {
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
+  const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+
+  const existingByEmail = await userRepository.findByEmail(adminEmail.toLowerCase());
+  const existingByUsername = await userRepository.findByUsername(adminUsername);
+
+  if (existingByEmail || existingByUsername) {
+    console.log(`✅ Admin user already exists: ${adminEmail}`);
+    return;
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(adminPassword, salt);
+
+  await userRepository.create({
+    username: adminUsername,
+    email: adminEmail.toLowerCase(),
+    password: hashedPassword,
+    role: 'Admin'
+  });
+
+  console.log(`✅ Default admin created: ${adminEmail} / ${adminPassword}`);
+};
+
 // Start server
 const startServer = async () => {
   await db.connect();
+  await ensureAdminUser();
   app.listen(PORT, () => {
     console.log(`✅ Server berjalan di port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
   });

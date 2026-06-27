@@ -47,6 +47,20 @@ const Task = sequelize.define('Task', {
         msg: 'Tenggat waktu wajib diisi'
       }
     }
+  },
+  proofImage: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      isValidProofImage(value) {
+        if (value && typeof value === 'string' && value.trim().length > 0) {
+          const urlPattern = /^https?:\/\/.+/i;
+          if (!urlPattern.test(value)) {
+            throw new Error('Bukti foto harus berupa URL yang valid');
+          }
+        }
+      }
+    }
   }
 }, {
   timestamps: true,
