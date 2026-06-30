@@ -16,8 +16,9 @@ class AuthController {
   register = async (req, res, next) => {
     try {
       const { username, email, password, role } = req.body;
+      const normalizedEmail = email.trim().toLowerCase();
 
-      const userExistsByEmail = await userRepository.findByEmail(email);
+      const userExistsByEmail = await userRepository.findByEmail(normalizedEmail);
       if (userExistsByEmail) {
         return res.status(400).json({ message: 'Email sudah terdaftar' });
       }
@@ -32,7 +33,7 @@ class AuthController {
 
       const user = await userRepository.create({
         username,
-        email: email.toLowerCase(),
+        email: normalizedEmail,
         password: hashedPassword,
         role: role || 'User'
       });
@@ -53,8 +54,9 @@ class AuthController {
   login = async (req, res, next) => {
     try {
       const { email, password } = req.body;
+      const normalizedEmail = email.trim().toLowerCase();
 
-      const user = await userRepository.findByEmail(email);
+      const user = await userRepository.findByEmail(normalizedEmail);
       if (!user) {
         return res.status(401).json({ message: 'Email atau password salah' });
       }

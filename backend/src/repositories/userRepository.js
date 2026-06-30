@@ -1,3 +1,4 @@
+const { fn, col, where } = require('sequelize');
 const User = require('../models/User');
 
 class UserRepository {
@@ -10,7 +11,10 @@ class UserRepository {
   }
 
   async findByEmail(email) {
-    const user = await User.findOne({ where: { email } });
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const user = await User.findOne({
+      where: where(fn('lower', col('email')), normalizedEmail)
+    });
     return this._mapUser(user);
   }
 
@@ -25,7 +29,11 @@ class UserRepository {
   }
 
   async create(userData) {
-    const user = await User.create(userData);
+    const data = {
+      ...userData,
+      email: String(userData.email).trim().toLowerCase()
+    };
+    const user = await User.create(data);
     return this._mapUser(user);
   }
 }
