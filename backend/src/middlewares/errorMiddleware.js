@@ -10,7 +10,12 @@ const errorHandler = (err, req, res, next) => {
     message = err.errors.map(e => e.message).join(', ');
   }
 
-  // Sequelize unique constraint error (e.g. duplicate email/username)
+  // Multer file upload errors
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    statusCode = 400;
+    message = 'Ukuran file maksimal 2MB';
+  }
+
   if (err.name === 'SequelizeUniqueConstraintError') {
     statusCode = 400;
     const field = err.errors[0].path;

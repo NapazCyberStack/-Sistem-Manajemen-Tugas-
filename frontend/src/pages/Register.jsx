@@ -77,8 +77,8 @@ const Register = () => {
     setValidationError('');
     try {
       await register(
-        formData.username, 
-        formData.email, 
+        formData.username.trim(), 
+        formData.email.trim(), 
         formData.password
       );
       // Redirect to dashboard on success

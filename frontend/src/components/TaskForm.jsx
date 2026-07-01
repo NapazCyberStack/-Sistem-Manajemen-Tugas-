@@ -12,6 +12,7 @@ const TaskForm = ({ task, onSubmit, onCancel, loading }) => {
   const [errors, setErrors] = useState({});
   const [proofImageFile, setProofImageFile] = useState(null);
   const [proofImagePreview, setProofImagePreview] = useState('');
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
   // Populate form if editing an existing task
   useEffect(() => {
@@ -89,11 +90,28 @@ const TaskForm = ({ task, onSubmit, onCancel, loading }) => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        setProofImageFile(null);
+        setProofImagePreview(task?.proofImage || '');
+        setErrors(prev => ({
+          ...prev,
+          proofImage: 'Ukuran file maksimal 2MB'
+        }));
+        return;
+      }
       setProofImageFile(file);
       setProofImagePreview(URL.createObjectURL(file));
+      setErrors(prev => ({
+        ...prev,
+        proofImage: ''
+      }));
     } else {
       setProofImageFile(null);
       setProofImagePreview(task?.proofImage || '');
+      setErrors(prev => ({
+        ...prev,
+        proofImage: ''
+      }));
     }
   };
 
@@ -159,9 +177,11 @@ const TaskForm = ({ task, onSubmit, onCancel, loading }) => {
           name="proofImage"
           accept="image/*"
           onChange={handleFileChange}
-          className="form-control rounded-3"
+          className={`form-control rounded-3 ${errors.proofImage ? 'is-invalid' : ''}`}
           disabled={loading}
         />
+        <div className="form-text text-secondary">Maksimal ukuran file 2MB. Format gambar: jpg, jpeg, png, webp.</div>
+        {errors.proofImage && <div className="invalid-feedback">{errors.proofImage}</div>}
         {proofImagePreview && (
           <div className="mt-3">
             <p className="mb-2 text-secondary small">Pratinjau bukti foto saat ini:</p>

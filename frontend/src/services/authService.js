@@ -8,10 +8,17 @@ class AuthService extends ApiService {
   // POST /register
   async register(username, email, password, role = 'User') {
     try {
-      const response = await this.post('/api/auth/register', { username, email, password, role });
+      const response = await this.post('/api/auth/register', {
+        username: String(username).trim(),
+        email: String(email).trim().toLowerCase(),
+        password,
+        role
+      });
       const { token, ...user } = response.data;
+      if (!token) {
+        throw new Error('Token autentikasi tidak diterima dari server');
+      }
       
-      // Store in localStorage
       localStorage.setItem('task_manager_token', token);
       localStorage.setItem('task_manager_user', JSON.stringify(user));
       
@@ -24,10 +31,15 @@ class AuthService extends ApiService {
   // POST /login
   async login(email, password) {
     try {
-      const response = await this.post('/api/auth/login', { email, password });
+      const response = await this.post('/api/auth/login', {
+        email: String(email).trim().toLowerCase(),
+        password
+      });
       const { token, ...user } = response.data;
+      if (!token) {
+        throw new Error('Token autentikasi tidak diterima dari server');
+      }
       
-      // Store in localStorage
       localStorage.setItem('task_manager_token', token);
       localStorage.setItem('task_manager_user', JSON.stringify(user));
       

@@ -11,8 +11,11 @@ export const AuthProvider = ({ children }) => {
   // Initialize user on mount
   useEffect(() => {
     const activeUser = authService.getCurrentUser();
-    if (activeUser) {
+    const hasToken = !!localStorage.getItem('task_manager_token');
+    if (activeUser && hasToken) {
       setUser(activeUser);
+    } else {
+      authService.logout();
     }
     setLoading(false);
   }, []);

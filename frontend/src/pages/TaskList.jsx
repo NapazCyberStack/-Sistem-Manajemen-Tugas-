@@ -391,6 +391,32 @@ const TaskList = () => {
                   <div className="bg-light rounded-3 p-3 mb-4 text-secondary" style={{ whiteSpace: 'pre-wrap', minHeight: '100px', fontSize: '14px' }}>
                     {selectedTask.description || <em className="opacity-50">Tidak ada deskripsi.</em>}
                   </div>
+
+                  {selectedTask.proofImage && (
+                    <div className="mb-4">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <h5 className="fw-semibold text-secondary m-0">Bukti Foto</h5>
+                        <a
+                          href={selectedTask.proofImage}
+                          download
+                          className="btn btn-sm btn-outline-primary rounded-3"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <i className="bi bi-download me-1"></i>
+                          Download
+                        </a>
+                      </div>
+                      <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
+                        <img
+                          src={selectedTask.proofImage}
+                          alt="Bukti tugas"
+                          className="w-100 h-100"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="border-top pt-3 text-secondary" style={{ fontSize: '14px' }}>

@@ -57,7 +57,7 @@ const Login = () => {
     setLoading(true);
     setValidationError('');
     try {
-      await login(formData.email, formData.password);
+      await login(formData.email.trim(), formData.password);
       // On success, redirect to dashboard
       navigate('/');
     } catch (err) {
