@@ -37,7 +37,7 @@ const connect = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Terhubung ke database menggunakan Sequelize.');
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
     console.log('✅ Semua model telah sinkron dengan database.');
   } catch (error) {
     console.error('❌ Gagal terhubung ke database:', error);
